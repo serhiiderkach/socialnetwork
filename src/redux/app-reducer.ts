@@ -1,22 +1,19 @@
-import {getAuthUserData} from "./auth-reducer";
-import {AppStateType} from "./redux-store";
-import {Dispatch} from "redux";
-import {ThunkAction} from "redux-thunk";
+import {getAuthUserData} from "./auth-reducer"
+import {InferActionsTypes} from "./redux-store"
 
-const INITIALIZED_SUCCESS = 'INITIALIZED_SUCCESS';
 
-export type InitialStateType = {
-    initialized: boolean,
+let initialState = {
+    initialized: false,
 }
 
-let initialState: InitialStateType = {
-    initialized: false,
-};
+export type InitialStateType = typeof initialState;
+type ActionsType = InferActionsTypes<typeof actions>
 
-const appReducer = (state = initialState, action: any): InitialStateType => {
+
+const appReducer = (state = initialState, action: ActionsType): InitialStateType => {
 
     switch (action.type) {
-        case INITIALIZED_SUCCESS:
+        case 'SN/APP/INITIALIZED_SUCCESS':
             return {
                 ...state,
                 initialized: true
@@ -26,23 +23,22 @@ const appReducer = (state = initialState, action: any): InitialStateType => {
     }
 }
 
-type ActionsTypes = initializedSuccessActionType;
 
-type initializedSuccessActionType = {
-    type: typeof INITIALIZED_SUCCESS
+
+export const actions = {
+    initializedSuccess: () => ({type: 'SN/APP/INITIALIZED_SUCCESS'} as const)
 }
-export const initializedSuccess = (): initializedSuccessActionType =>
-    ({type: INITIALIZED_SUCCESS,});
 
 
-type ThunkType = ThunkAction<Promise<void>, AppStateType, null, ActionsTypes>
 
 
-export const initializeApp =  ():
-    ThunkType => async (dispatch) => {
-       await dispatch(getAuthUserData());
-       await dispatch(initializedSuccess());
+export const initializeApp = () => (dispatch: any) => {
+    let promise = dispatch(getAuthUserData());
 
+    Promise.all([promise])
+        .then(() => {
+            dispatch(actions.initializedSuccess());
+        });
 }
 
 export default appReducer;

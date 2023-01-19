@@ -13,4 +13,18 @@ const loginFormSchema = Yup.object().shape({
     // captcha: Yup.string()
     //     .required('Field is Required'),
 });
+
+
+export const validateEmailField = (values) => {
+    const errors = {};
+    if (!values.email) {
+        errors.email = 'Field is Required';
+    } else if (
+        !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
+    ) {
+        errors.email = 'Invalid email address';
+    }
+    return errors;
+}
+
 export default loginFormSchema;

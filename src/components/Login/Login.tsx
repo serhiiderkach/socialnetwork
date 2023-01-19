@@ -1,34 +1,38 @@
 import React from "react";
-import {Formik, Form, Field} from "formik";
-import loginFormSchema from "../FormValidation/LoginFormSchema";
+import {Field, Form, Formik} from "formik";
+import loginFormSchema, {validateEmailField} from "../FormValidation/LoginFormSchema";
 import {connect} from "react-redux";
 import {login} from "../../redux/auth-reducer";
 import {Navigate} from "react-router-dom";
+import {AppStateType} from "../../redux/redux-store";
 
-const Login = ({isAuth, login, captchaUrl}) => {
+type MapStatePropsType = {
+    captchaUrl: string | null
+    isAuth: boolean
+}
+type MapDispatchPropsType = {
+    login: (email: string, password: string, rememberMe: boolean, setStatus: any, setSubmitting:any, captcha: string) => void
+}
+type OwnProps = {
+    captchaUrl: string
+}
+type PropsType = MapStatePropsType & MapDispatchPropsType & OwnProps
+
+const Login: React.FC<PropsType> = ({isAuth, login, captchaUrl}) => {
     if (isAuth) return <Navigate to={'/profile'}/>
+
     return (<div>
             <h1>Login</h1>
             <Formik
                 initialValues={{email: "", password: "", rememberMe: false, captcha: ''}}
-                validate={values => {
-                    const errors = {};
-                    if (!values.email) {
-                        errors.email = 'Field is Required';
-                    } else if (
-                        !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-                    ) {
-                        errors.email = 'Invalid email address';
-                    }
-                    return errors;
-                }}
+                validate={validateEmailField}
                 validationSchema={loginFormSchema}
                 onSubmit={(values, {setSubmitting, setStatus}) => {
                     login(values.email, values.password, values.rememberMe, setStatus, setSubmitting, values.captcha)
                     setSubmitting(true)
                 }}
             >
-                {({errors, touched, status, isSubmitting, setSubmitting}) => (
+                {({errors, touched, status, isSubmitting}) => (
                     <Form>
                         <div>
                             <Field type={'text'} name={'email'} placeholder={'e-mail'}/>
@@ -89,11 +93,13 @@ const Login = ({isAuth, login, captchaUrl}) => {
     );
 }
 
-let mapStateToProps = (state) => {
+let mapStateToProps = (state: AppStateType): MapStatePropsType => {
     return {
         captchaUrl: state.auth.captchaUrl,
         isAuth: state.auth.isAuth
     }
 }
 
+// export default connect<PropsType, AppStateType>(mapStateToProps, {login})(Login);
+// @ts-ignore
 export default connect(mapStateToProps, {login})(Login);

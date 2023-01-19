@@ -4,6 +4,7 @@ import './index.css';
 import SamuraiJSApp from './App';
 import reportWebVitals from './reportWebVitals';
 
+// @ts-ignore
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 

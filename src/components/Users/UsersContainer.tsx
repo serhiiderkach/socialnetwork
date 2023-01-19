@@ -25,7 +25,6 @@ type MapStatePropsType = {
     followingInProgress: Array<number>
 }
 type MapDispatchPropsType = {
-
     getUsers: (currentPage: number, pageSize: number) => void
     follow: (userId: number) => void
     unfollow: (userId: number) => void
@@ -77,8 +76,7 @@ let mapStateToProps = (state: AppStateType): MapStatePropsType => {
     }
 }
 
-export default compose<React.Component<PropsType>>(
-    //
+export default compose(
     connect<MapStatePropsType, MapDispatchPropsType, OwnPropsType, AppStateType>(
         mapStateToProps, {
             follow,

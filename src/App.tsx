@@ -1,22 +1,27 @@
 import './App.css';
 import Navbar from "./components/Navbar/Navbar";
 import {HashRouter, Route, Routes} from "react-router-dom";
-import UsersContainer from "./components/Users/UsersContainer";
 import HeaderContainer from "./components/Header/HeaderContainer";
 import Login from "./components/Login/Login";
 import React, {Component} from "react";
 import {connect, Provider} from "react-redux";
 import {initializeApp} from "./redux/app-reducer";
 import Preloader from "./components/common/Preloader/preloader";
-import store from "./redux/redux-store";
+import store, {AppStateType} from "./redux/redux-store";
+import UsersContainer from "./components/Users/UsersContainer";
 
 // import DialogsContainer from "./components/Dialogs/DialogsContainer";
 const DialogsContainer = React.lazy(() => import('./components/Dialogs/DialogsContainer'));
 const ProfileContainer = React.lazy(() => import('./components/Profile/ProfileContainer'));
 
-class App extends Component {
+type MapPropsType = ReturnType<typeof mapStateToProps>;
+type DispatchPropsType = {
+    initializeApp: () => void
+};
 
-    catchAllUnhandledErrors = (reason, promise) => {
+class App extends Component<MapPropsType & DispatchPropsType> {
+
+    catchAllUnhandledErrors = (e: PromiseRejectionEvent) => {
         alert('Some error occurred');
 
     }
@@ -59,6 +64,7 @@ class App extends Component {
                         {/*<Route path='/news/' element={<DialogsContainer />}/>*/}
                         {/*<Route path='/music/' element={<DialogsContainer />}/>*/}
                         {/*<Route path='/settings/' element={<DialogsContainer />}/>*/}
+
                         <Route path='/users/*' element={<UsersContainer pageTitle={'Samurai'}/>}/>
                         <Route path='/login/*' element={<Login/>}/>
                         <Route path='*' element={<div>404 not found</div>}/>
@@ -69,7 +75,7 @@ class App extends Component {
     }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: AppStateType) => ({
     initialized: state.app.initialized
 })
 
@@ -77,7 +83,7 @@ let AppContainer = connect(
     mapStateToProps,
     {initializeApp})(App);
 
-let SamuraiJSApp = (props) => {
+let SamuraiJSApp: React.FC = () => {
     return <HashRouter>
         <Provider store={store}>
             <AppContainer/>
