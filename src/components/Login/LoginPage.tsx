@@ -1,24 +1,23 @@
 import React from "react";
 import {Field, Form, Formik} from "formik";
 import loginFormSchema, {validateEmailField} from "../FormValidation/LoginFormSchema";
-import {connect} from "react-redux";
-import {login} from "../../redux/auth-reducer";
+import {useDispatch, useSelector} from "react-redux";
 import {Navigate} from "react-router-dom";
-import {AppStateType} from "../../redux/redux-store";
+import {AppDispatch, AppStateType} from "../../redux/redux-store";
+import {login} from "../../redux/auth-reducer";
 
-type MapStatePropsType = {
-    captchaUrl: string | null
-    isAuth: boolean
-}
-type MapDispatchPropsType = {
-    login: (email: string, password: string, rememberMe: boolean, setStatus: any, setSubmitting:any, captcha: string) => void
-}
-type OwnProps = {
-    captchaUrl: string
-}
-type PropsType = MapStatePropsType & MapDispatchPropsType & OwnProps
 
-const Login: React.FC<PropsType> = ({isAuth, login, captchaUrl}) => {
+export const LoginPage: React.FC = () => {
+
+    const captchaUrl = useSelector((state: AppStateType) => state.auth.captchaUrl)
+    const isAuth = useSelector((state: AppStateType) => state.auth.isAuth)
+
+    const dispatch: AppDispatch = useDispatch()
+
+    const handleSubmit = (email: string, password: string, rememberMe: boolean, setStatus: (text: Array<String>)=> void, setSubmitting: (submit: boolean) => void, captcha: string) => {
+        dispatch(login(email,password,rememberMe,setStatus,setSubmitting,captcha))
+    }
+
     if (isAuth) return <Navigate to={'/profile'}/>
 
     return (<div>
@@ -28,7 +27,7 @@ const Login: React.FC<PropsType> = ({isAuth, login, captchaUrl}) => {
                 validate={validateEmailField}
                 validationSchema={loginFormSchema}
                 onSubmit={(values, {setSubmitting, setStatus}) => {
-                    login(values.email, values.password, values.rememberMe, setStatus, setSubmitting, values.captcha)
+                    handleSubmit(values.email, values.password, values.rememberMe, setStatus, setSubmitting, values.captcha)
                     setSubmitting(true)
                 }}
             >
@@ -93,13 +92,3 @@ const Login: React.FC<PropsType> = ({isAuth, login, captchaUrl}) => {
     );
 }
 
-let mapStateToProps = (state: AppStateType): MapStatePropsType => {
-    return {
-        captchaUrl: state.auth.captchaUrl,
-        isAuth: state.auth.isAuth
-    }
-}
-
-// export default connect<PropsType, AppStateType>(mapStateToProps, {login})(Login);
-// @ts-ignore
-export default connect(mapStateToProps, {login})(Login);
